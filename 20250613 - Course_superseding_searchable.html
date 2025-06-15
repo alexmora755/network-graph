@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Course superseding network</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    #network {
+      width: 100%;
+      height: 800px;
+      border: 1px solid lightgray;
+    }
+    #searchContainer {
+      margin-bottom: 10px;
+    }
+    #searchBox {
+      padding: 5px;
+      width: 200px;
+      font-size: 14px;
+    }
+   #searchContainer {
+  margin-bottom: 10px;
+}
+
+#searchBox {
+  padding: 8px;
+  width: 220px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 6px;
+  border: none;
+  border-radius: 6px;
+  background-color: #347c36;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+  </style>
+</head>
+<body>
+  <h2>Course superseding network</h2>
+  <div id="searchContainer">
+    <input type="text" id="searchBox" placeholder="Enter course code..." />
+    <button id="searchBtn">Search</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+  <div id="network"></div>
+
+  <div id="customTooltip" style="position:absolute; display:none; background:#fff; border:1px solid #ccc; padding:6px; z-index:10; pointer-events:none;"></div>
+
+
+
+  <!-- Load the arrays from external JS files -->
+  <script src="nodesArray.js"></script>
+  <script src="edgesArray.js"></script>
+
+<script>
+  var allNodes = new vis.DataSet(nodesArray);
+  var allEdges = new vis.DataSet(edgesArray);
+  var tooltip = document.getElementById('customTooltip');
+  var container = document.getElementById('network');
+  var network = null;
+
+  function getConnectedNodesDeep(startId) {
+    const visited = new Set();
+    const queue = [startId];
+    const graph = {};
+
+    // Build undirected graph
+    edgesArray.forEach(edge => {
+      if (!graph[edge.from]) graph[edge.from] = [];
+      if (!graph[edge.to]) graph[edge.to] = [];
+      graph[edge.from].push(edge.to);
+      graph[edge.to].push(edge.from);
+    });
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (!visited.has(current)) {
+        visited.add(current);
+        const neighbors = graph[current] || [];
+        neighbors.forEach(n => {
+          if (!visited.has(n)) {
+            queue.push(n);
+          }
+        });
+      }
+    }
+
+    return visited;
+  }
+
+  document.getElementById('searchBtn').addEventListener('click', function () {
+    const code = document.getElementById('searchBox').value.trim();
+    if (!code) return;
+
+    const connectedIds = getConnectedNodesDeep(code);
+
+    // Filter node and edge data
+    const filteredNodes = allNodes.get().filter(n => connectedIds.has(n.id));
+    const filteredEdges = allEdges.get().filter(e =>
+      connectedIds.has(e.from) && connectedIds.has(e.to)
+    );
+
+    const data = {
+      nodes: new vis.DataSet(filteredNodes),
+      edges: new vis.DataSet(filteredEdges)
+    };
+
+    const options = {
+      layout: {
+        hierarchical: {
+          enabled: true,
+          direction: 'LR',
+          sortMethod: 'directed',
+          levelSeparation: 150,
+          nodeSpacing: 200
+        }
+      },
+      nodes: {
+        shape: 'dot',
+        size: 14,
+        font: { size: 14, color: '#000' }
+      },
+      edges: {
+        arrows: 'to',
+        smooth: {
+          type: 'cubicBezier',
+          forceDirection: 'horizontal',
+          roundness: 0.4
+        }
+      },
+      interaction: {
+        hover: true,
+        tooltipDelay: 100,
+        navigationButtons: true,
+        zoomView: false
+      },
+      physics: false
+    };
+
+    if (network) {
+      network.setData(data);
+    } else {
+      network = new vis.Network(container, data, options);
+
+      // Tooltip handlers
+      network.on("hoverNode", function (params) {
+        var node = data.nodes.get(params.node);
+        tooltip.innerHTML = `<b>${node.label}</b><br>${node.title || ''}`;
+        tooltip.style.display = 'block';
+      });
+
+      network.on("blurNode", function () {
+        tooltip.style.display = 'none';
+      });
+
+      network.on("mousemove", function (params) {
+        tooltip.style.top = params.event.pageY + 5 + 'px';
+        tooltip.style.left = params.event.pageX + 5 + 'px';
+      });
+    }
+  });
+
+
+  
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+  document.getElementById('searchBox').value = ''; // clear input
+
+  // Clear the network data by setting empty datasets:
+  if (network) {
+    network.setData({
+      nodes: new vis.DataSet([]),
+      edges: new vis.DataSet([])
+    });
+  }
+  
+  // Hide tooltip just in case
+  tooltip.style.display = 'none';
+});
+
+</script>
+
+
+
+</body>
+</html>
