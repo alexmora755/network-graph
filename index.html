@@ -25,6 +25,20 @@
   margin-bottom: 10px;
 }
 
+#info {
+  background-color: #f2f2f2;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid #347c36;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+#info p {
+  margin: 6px 0;
+}
+
+
 #searchBox {
   padding: 8px;
   width: 220px;
@@ -53,11 +67,21 @@ button:hover {
 </head>
 <body>
   <h2>Course superseding network</h2>
-  <div id="searchContainer">
-    <input type="text" id="searchBox" placeholder="Enter course code..." />
-    <button id="searchBtn">Search</button>
-    <button id="resetBtn">Reset</button>
-  </div>
+
+
+<div id="info">
+  <p><strong>🟢 Green arrows</strong> represent equivalent courses.</p>
+  <p><strong>🔴 Red arrows</strong> represent non-equivalent courses.</p>
+  <p>Use the search box below to enter a course code and view its connections.</p>
+</div>
+
+<div id="searchContainer">
+  <input type="text" id="searchBox" placeholder="Enter course code..." />
+  <button id="searchBtn">Search</button>
+  <button id="resetBtn">Reset</button>
+</div>
+
+
   <div id="network"></div>
 
   <div id="customTooltip" style="position:absolute; display:none; background:#fff; border:1px solid #ccc; padding:6px; z-index:10; pointer-events:none;"></div>
