@@ -3,6 +3,7 @@
 <html>
 <head>
   <title>Course superseding network</title>
+  <link rel="icon" href="favicon_circular.ico" type="image/x-icon">
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <style>
     body {
@@ -66,7 +67,7 @@ button:hover {
   </style>
 </head>
 <body>
-  <h2>Course superseding network</h2>
+  <h2>Program superseding visualiser - as at June 2025</h2>
 
 
 <div id="info">
@@ -134,8 +135,34 @@ button:hover {
 
     const connectedIds = getConnectedNodesDeep(code);
 
-    // Filter node and edge data
-    const filteredNodes = allNodes.get().filter(n => connectedIds.has(n.id));
+    // Filter node and edge data    
+const filteredNodes = allNodes.get().filter(n => connectedIds.has(n.id)).map(n => {
+  if (n.id === code) {
+    return {
+      ...n,
+      color: {
+        background: '#ffffff',   // white center
+        border: '#ff0000',       // red border
+        highlight: {
+          background: '#ffffff',
+          border: '#ff0000'
+        },
+        hover: {
+          background: '#ffffff',
+          border: '#ff0000'
+        }
+      },
+      borderWidth: 4,
+      size: 20
+    };
+  }
+  return n;
+});
+    
+    
+    
+    
+    
     const filteredEdges = allEdges.get().filter(e =>
       connectedIds.has(e.from) && connectedIds.has(e.to)
     );
