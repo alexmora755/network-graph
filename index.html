@@ -67,7 +67,7 @@ button:hover {
   </style>
 </head>
 <body>
-  <h2>Program superseding visualiser - as at July 2025</h2>
+  <h2>Program superseding visualiser - as at June 2025</h2>
 
 
 <div id="info">
@@ -80,12 +80,16 @@ button:hover {
   <input type="text" id="searchBox" placeholder="Enter course code..." />
   <button id="searchBtn">Search</button>
   <button id="resetBtn">Reset</button>
+  <button id="exportFullBtn">Export Full Graph</button>
 </div>
 
 
   <div id="network"></div>
 
   <div id="customTooltip" style="position:absolute; display:none; background:#fff; border:1px solid #ccc; padding:6px; z-index:10; pointer-events:none;"></div>
+
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 
 
@@ -244,6 +248,37 @@ const filteredNodes = allNodes.get().filter(n => connectedIds.has(n.id)).map(n =
   // Hide tooltip just in case
   tooltip.style.display = 'none';
 });
+
+document.getElementById('exportFullBtn').addEventListener('click', function () {
+  if (!network) {
+    alert("Please run a search first so the graph is loaded.");
+    return;
+  }
+
+  const originalHeight = container.style.height;
+  container.style.height = "2000px"; // Big canvas for export
+  network.redraw();
+  network.fit({ animation: false });
+
+  setTimeout(() => {
+    html2canvas(container, {
+      backgroundColor: "#ffffff",
+      scale: 3  // High res for readability
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL("image/png");
+      link.download = 'full_network_graph.png';
+      link.click();
+      container.style.height = originalHeight; // Revert height
+      network.redraw();
+    }).catch(err => {
+      console.error("html2canvas error:", err);
+      container.style.height = originalHeight;
+      network.redraw();
+    });
+  }, 500);
+});
+
 
 </script>
 
