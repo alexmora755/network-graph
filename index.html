@@ -1,288 +1,395 @@
-
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Course superseding network</title>
-  <link rel="icon" href="favicon_circular.ico" type="image/x-icon">
-  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-    }
-    #network {
-      width: 100%;
-      height: 800px;
-      border: 1px solid lightgray;
-    }
-    #searchContainer {
-      margin-bottom: 10px;
-    }
-    #searchBox {
-      padding: 5px;
-      width: 200px;
-      font-size: 14px;
-    }
-   #searchContainer {
-  margin-bottom: 10px;
-}
+  <head>
+    <title>Course superseding network</title>
+    <link rel="icon" href="favicon_circular.ico" type="image/x-icon" />
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
+    ></script>
 
-#info {
-  background-color: #f2f2f2;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  border-left: 4px solid #347c36;
-  border-radius: 6px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-#info p {
-  margin: 6px 0;
-}
-
-
-#searchBox {
-  padding: 8px;
-  width: 220px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-button {
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: bold;
-  margin-left: 6px;
-  border: none;
-  border-radius: 6px;
-  background-color: #347c36;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-  </style>
-</head>
-<body>
-  <h2>Program superseding visualiser - as at September 2025</h2>
-
-
-<div id="info">
-  <p><strong>🟢 Green arrows</strong> represent equivalent courses.</p>
-  <p><strong>🔴 Red arrows</strong> represent non-equivalent courses.</p>
-  <p>Use the search box below to enter a course code and view its connections.</p>
-</div>
-
-<div id="searchContainer">
-  <input type="text" id="searchBox" placeholder="Enter course code..." />
-  <button id="searchBtn">Search</button>
-  <button id="resetBtn">Reset</button>
-  <button id="exportFullBtn">Export Full Graph</button>
-</div>
-
-
-  <div id="network"></div>
-
-  <div id="customTooltip" style="position:absolute; display:none; background:#fff; border:1px solid #ccc; padding:6px; z-index:10; pointer-events:none;"></div>
-
-
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
-
-
-  <!-- Load the arrays from external JS files -->
-  <script src="nodesArray.js"></script>
-  <script src="edgesArray.js"></script>
-
-<script>
-  var allNodes = new vis.DataSet(nodesArray);
-  var allEdges = new vis.DataSet(edgesArray);
-  var tooltip = document.getElementById('customTooltip');
-  var container = document.getElementById('network');
-  var network = null;
-
-  function getConnectedNodesDeep(startId) {
-    const visited = new Set();
-    const queue = [startId];
-    const graph = {};
-
-    // Build undirected graph
-    edgesArray.forEach(edge => {
-      if (!graph[edge.from]) graph[edge.from] = [];
-      if (!graph[edge.to]) graph[edge.to] = [];
-      graph[edge.from].push(edge.to);
-      graph[edge.to].push(edge.from);
-    });
-
-    while (queue.length > 0) {
-      const current = queue.shift();
-      if (!visited.has(current)) {
-        visited.add(current);
-        const neighbors = graph[current] || [];
-        neighbors.forEach(n => {
-          if (!visited.has(n)) {
-            queue.push(n);
-          }
-        });
+    <style>
+      body {
+        font-family: sans-serif;
       }
-    }
+      #network {
+        width: 100%;
+        height: 800px;
+        border: 1px solid lightgray;
+      }
+      #searchContainer {
+        margin-bottom: 10px;
+      }
+      #searchBox {
+        padding: 5px;
+        width: 200px;
+        font-size: 14px;
+      }
+      #searchContainer {
+        margin-bottom: 10px;
+      }
 
-    return visited;
-  }
+      #info {
+        background-color: #f2f2f2;
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        border-left: 4px solid #347c36;
+        border-radius: 6px;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      #info p {
+        margin: 6px 0;
+      }
 
-  document.getElementById('searchBtn').addEventListener('click', function () {
-    const code = document.getElementById('searchBox').value.trim();
-    if (!code) return;
+      #searchBox {
+        padding: 8px;
+        width: 220px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
 
-    const connectedIds = getConnectedNodesDeep(code);
+      button {
+        padding: 8px 14px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-left: 6px;
+        border: none;
+        border-radius: 6px;
+        background-color: #347c36;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
 
-    // Filter node and edge data    
-const filteredNodes = allNodes.get().filter(n => connectedIds.has(n.id)).map(n => {
-  if (n.id === code) {
-    return {
-      ...n,
-      color: {
-        background: '#ffffff',   // white center
-        border: '#ff0000',       // red border
-        highlight: {
-          background: '#ffffff',
-          border: '#ff0000'
-        },
-        hover: {
-          background: '#ffffff',
-          border: '#ff0000'
-        }
-      },
-      borderWidth: 4,
-      size: 20
-    };
-  }
-  return n;
-});
-    
-    
-    
-    
-    
-    const filteredEdges = allEdges.get().filter(e =>
-      connectedIds.has(e.from) && connectedIds.has(e.to)
-    );
+      button:hover {
+        background-color: #45a049;
+      }
 
-    const data = {
-      nodes: new vis.DataSet(filteredNodes),
-      edges: new vis.DataSet(filteredEdges)
-    };
+      #detailsPane {
+        margin-top: 0px;
+        padding: 10px 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #fafafa;
+        font-size: 13px;
+        line-height: 1.4;
+        white-space: pre-wrap; /* allow wrapping inside <pre> */
+        display: none; /* start hidden */
+        opacity: 0; /* fully transparent */
+        transition: opacity 0.3s ease; /* smooth fade */
+      }
+
+      #detailsPane.visible {
+        display: block; /* show */
+        opacity: 1; /* fully visible */
+      }
+
+      #detailsPane button {
+        float: right;
+        margin-left: 8px;
+        background: #347c36;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+      }
+
+      #latestCourse {
+        display: none;
+        margin: 0 0 12px 0;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center; /* center text */
+      }
+
+      #detailsPane button:hover {
+        background: #45a049;
+      }
+
+      #mainWrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      /* Network takes most of the width */
+      #network {
+        flex-grow: 1;
+        height: 800px;
+        border: 1px solid lightgray;
+      }
+
+      /* Right-side panel */
+      #detailsPane {
+        /*position: absolute;         position it relative to the page */
+        top: 50px; /* adjust as needed */
+        right: 20px; /* adjust as needed */
+        width: 280px;
+        padding: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #fafafa;
+        font-size: 13px;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+        z-index: 9999; /* ensure it sits above the network canvas */
+      }
+
+      #detailsText {
+        white-space: pre-wrap; /* allow line breaks + wrapping */
+        word-wrap: break-word; /* break long strings */
+        overflow-wrap: break-word;
+        overflow-x: hidden; /* hides horizontal scrollbar */
+        max-width: 100%; /* respects parent panel width */
+        box-sizing: border-box; /* ensures padding/margin behave */
+        white-space: pre-line; /* respects \n and wraps long lines */
+      }
+
+      #detailsPane button {
+        float: right;
+        margin-left: 8px;
+        background: #347c36;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+      }
+
+      /* Highlight details pane briefly on right-click */
+      #detailsPane.right-click-active {
+        background-color: #e0ffe0; /* light green flash */
+        transition: background-color 0.3s ease;
+      }
+
+      #detailsPane button:hover {
+        background: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Program superseding visualiser - as at June 2025</h2>
+
+    <div id="info">
+      <p><strong>🟢 Green arrows</strong> represent equivalent courses.</p>
+      <p><strong>🔴 Red arrows</strong> represent non-equivalent courses.</p>
+      <p>
+        Use the search box below to enter a course code and view its
+        connections.
+      </p>
+    </div>
+
+    <div id="searchContainer">
+      <input type="text" id="searchBox" placeholder="Enter course code..." />
+      <button id="searchBtn">Search</button>
+      <button id="resetBtn">Reset</button>
+      <button id="exportFullBtn">Export Full Graph</button>
+    </div>
+
+    <div
+      id="latestCourse"
+      style="
+        display: none;
+        margin: 0 0 12px 0;
+        font-weight: bold;
+        font-size: 16px;
+      "
+    ></div>
+
+    <div id="mainWrapper">
+      <div id="network"></div>
+      <div id="detailsPane">
+        <h3>Selected node details</h3>
+        <pre id="detailsText"></pre>
+       
+      </div>
+    </div>
+
+    <div
+      id="customTooltip"
+      style="
+        position: absolute;
+        display: none;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 6px;
+        z-index: 10;
+        pointer-events: none;
+      "
+    ></div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="nodesArray.js"></script>
+    <script src="edgesArray.js"></script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const allNodes = new vis.DataSet(nodesArray);
+    const allEdges = new vis.DataSet(edgesArray);
+    const container = document.getElementById("network");
+    const tooltip = document.getElementById("customTooltip");
+    const detailsPane = document.getElementById("detailsPane");
+    const detailsText = document.getElementById("detailsText");
+    const latestBox = document.getElementById("latestCourse");
+
+    // Initialize empty DataSets
+    const nodeDataSet = new vis.DataSet([]);
+    const edgeDataSet = new vis.DataSet([]);
 
     const options = {
-      layout: {
-        hierarchical: {
-          enabled: true,
-          direction: 'LR',
-          sortMethod: 'directed',
-          levelSeparation: 150,
-          nodeSpacing: 200
-        }
-      },
-      nodes: {
-        shape: 'dot',
-        size: 14,
-        font: { size: 14, color: '#000' }
-      },
-      edges: {
-        arrows: 'to',
-        smooth: {
-          type: 'cubicBezier',
-          forceDirection: 'horizontal',
-          roundness: 0.4
-        }
-      },
-      interaction: {
-        hover: true,
-        tooltipDelay: 100,
-        navigationButtons: true,
-        zoomView: false
-      },
-      physics: false
+        layout: {
+            hierarchical: {
+                enabled: true,
+                direction: "LR",
+                sortMethod: "directed",
+                levelSeparation: 150,
+                nodeSpacing: 200,
+            },
+        },
+        nodes: { shape: "dot", size: 14, font: { size: 14, color: "#000" } },
+        edges: {
+            arrows: "to",
+            smooth: {
+                type: "cubicBezier",
+                forceDirection: "horizontal",
+                roundness: 0.4,
+            },
+        },
+        interaction: {
+            hover: true,
+            tooltipDelay: 100,
+            navigationButtons: true,
+            zoomView: false,
+        },
+        physics: false,
     };
 
-    if (network) {
-      network.setData(data);
-    } else {
-      network = new vis.Network(container, data, options);
+    // Create network once
+    const network = new vis.Network(container, { nodes: nodeDataSet, edges: edgeDataSet }, options);
 
-      // Tooltip handlers
-      network.on("hoverNode", function (params) {
-        var node = data.nodes.get(params.node);
-        tooltip.innerHTML = `<b>${node.label}</b><br>${node.title || ''}`;
-        tooltip.style.display = 'block';
-      });
+    // Attach node listeners once
+    network.on("selectNode", function (params) {
+        const nodeId = params.nodes[0];
+        const nodeData = nodeDataSet.get(nodeId);
+        if (!nodeData) return;
 
-      network.on("blurNode", function () {
-        tooltip.style.display = 'none';
-      });
+        const formattedTitle = nodeData.title
+            ? nodeData.title.replace(/\s{2,}/g, "\n")
+            : (nodeData.label || "");
 
-      network.on("mousemove", function (params) {
-        tooltip.style.top = params.event.pageY + 5 + 'px';
-        tooltip.style.left = params.event.pageX + 5 + 'px';
-      });
+        const lines = [
+            `Code : ${nodeData.id}`,
+            formattedTitle ? `Details: ${formattedTitle}` : ""
+        ].filter(Boolean).join("\n");
+
+        detailsText.textContent = lines;
+
+        // fade-in using CSS class
+        detailsPane.classList.add("visible");
+    });
+
+    network.on("deselectNode", () => {
+        detailsPane.classList.remove("visible");
+    });
+
+    // ── Utility: get all connected nodes ──
+    function getConnectedNodesDeep(startId) {
+        const visited = new Set();
+        const queue = [startId];
+        const graph = {};
+
+        edgesArray.forEach(edge => {
+            if (!graph[edge.from]) graph[edge.from] = [];
+            if (!graph[edge.to]) graph[edge.to] = [];
+            graph[edge.from].push(edge.to);
+            graph[edge.to].push(edge.from);
+        });
+
+        while (queue.length > 0) {
+            const current = queue.shift();
+            if (!visited.has(current)) {
+                visited.add(current);
+                const neighbors = graph[current] || [];
+                neighbors.forEach(n => {
+                    if (!visited.has(n)) queue.push(n);
+                });
+            }
+        }
+        return visited;
     }
-  });
 
+    // ── Search button ──
+    document.getElementById("searchBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+        const code = document.getElementById("searchBox").value.trim();
+        if (!code) return;
 
-  
+        const connectedIds = getConnectedNodesDeep(code);
 
-  document.getElementById('resetBtn').addEventListener('click', function () {
-  document.getElementById('searchBox').value = ''; // clear input
+        // Filter nodes and PRESERVE titles/labels
+        const filteredNodes = allNodes.get().filter(n => connectedIds.has(n.id)).map(n => {
+            if (n.id === code) {
+                return {
+                    ...n,
+                    color: {
+                        background: "#ffffff",
+                        border: "#ff0000",
+                        highlight: { background: "#ffffff", border: "#ff0000" },
+                        hover: { background: "#ffffff", border: "#ff0000" }
+                    },
+                    borderWidth: 4,
+                    size: 20
+                };
+            }
+            return { ...n }; // keep all original props
+        });
 
-  // Clear the network data by setting empty datasets:
-  if (network) {
-    network.setData({
-      nodes: new vis.DataSet([]),
-      edges: new vis.DataSet([])
+        // Filter edges
+        const filteredEdges = allEdges.get().filter(e => connectedIds.has(e.from) && connectedIds.has(e.to));
+
+        // Update existing DataSets (do NOT replace them)
+        nodeDataSet.clear();
+        edgeDataSet.clear();
+        nodeDataSet.add(filteredNodes);
+        edgeDataSet.add(filteredEdges);
+
+        // ── Latest course logic ──
+        const hasOutgoing = new Set(filteredEdges.map(e => e.from));
+        const finals = filteredNodes.filter(n => !hasOutgoing.has(n.id));
+
+        if (finals.length === 1) {
+            const node = finals[0];
+            const fullTitle = node.title || node.label || "";
+            const displayTitle = fullTitle.split("Type")[0].trim(); // grab everything before 'Type'
+            latestBox.textContent = `Latest course: ${displayTitle} (${node.id})`;
+            latestBox.style.display = "block";
+        } else {
+            latestBox.style.display = "none";
+        }
     });
-  }
-  
-  // Hide tooltip just in case
-  tooltip.style.display = 'none';
-});
 
-document.getElementById('exportFullBtn').addEventListener('click', function () {
-  if (!network) {
-    alert("Please run a search first so the graph is loaded.");
-    return;
-  }
-
-  const originalHeight = container.style.height;
-  container.style.height = "2000px"; // Big canvas for export
-  network.redraw();
-  network.fit({ animation: false });
-
-  setTimeout(() => {
-    html2canvas(container, {
-      backgroundColor: "#ffffff",
-      scale: 3  // High res for readability
-    }).then(canvas => {
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL("image/png");
-      link.download = 'full_network_graph.png';
-      link.click();
-      container.style.height = originalHeight; // Revert height
-      network.redraw();
-    }).catch(err => {
-      console.error("html2canvas error:", err);
-      container.style.height = originalHeight;
-      network.redraw();
+    // ── Reset button ──
+    document.getElementById("resetBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+        document.getElementById("searchBox").value = "";
+        nodeDataSet.clear();
+        edgeDataSet.clear();
+        latestBox.style.display = "none";
+        detailsPane.classList.remove("visible");
+        tooltip.style.display = "none";
     });
-  }, 500);
+
 });
-
-
 </script>
 
 
 
-</body>
+  </body>
 </html>
