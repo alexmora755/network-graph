@@ -208,6 +208,11 @@
       "
     ></div>
 
+    <div
+      id="message"
+      style="color: red; margin-top: 8px; text-align: center; font-weight: bold"
+    ></div>
+
     <div id="mainWrapper">
       <div id="network"></div>
       <div id="detailsPane">
@@ -373,6 +378,18 @@
                 (e) => connectedIds.has(e.from) && connectedIds.has(e.to)
               );
 
+            // If no nodes, show message and stop
+            if (filteredNodes.length === 0) {
+              document.getElementById("message").textContent =
+                "No course found, please check entered code.";
+              document.getElementById("network").style.display = "none"; // hide graph
+              return; // don’t update graph
+            } else {
+              // clear old message if search is valid
+              document.getElementById("message").textContent = "";
+              document.getElementById("network").style.display = "block"; // show graph
+            }
+
             // Update existing DataSets (do NOT replace them)
             nodeDataSet.clear();
             edgeDataSet.clear();
@@ -386,7 +403,7 @@
             if (finals.length === 1) {
               const node = finals[0];
               const fullTitle = node.title || node.label || "";
-              const displayTitle = fullTitle.split("Type")[0].trim(); // grab everything before 'Type'
+              const displayTitle = fullTitle.split("Type")[0].trim();
               latestBox.textContent = `Latest course: ${displayTitle} (${node.id})`;
               latestBox.style.display = "block";
             } else {
