@@ -172,6 +172,11 @@
       #detailsPane button:hover {
         background: #45a049;
       }
+
+      #detailsPane h3 {
+        margin: 0 0 0px 0; /* top right bottom left */
+        font-size: 16px; /* optional: tweak font size */
+      }
     </style>
   </head>
   <body>
@@ -206,9 +211,8 @@
     <div id="mainWrapper">
       <div id="network"></div>
       <div id="detailsPane">
-        <h3>Selected node details</h3>
+        <h3>Selected node details:</h3>
         <pre id="detailsText"></pre>
-       
       </div>
     </div>
 
@@ -229,167 +233,215 @@
     <script src="nodesArray.js"></script>
     <script src="edgesArray.js"></script>
 
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const allNodes = new vis.DataSet(nodesArray);
-    const allEdges = new vis.DataSet(edgesArray);
-    const container = document.getElementById("network");
-    const tooltip = document.getElementById("customTooltip");
-    const detailsPane = document.getElementById("detailsPane");
-    const detailsText = document.getElementById("detailsText");
-    const latestBox = document.getElementById("latestCourse");
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const allNodes = new vis.DataSet(nodesArray);
+        const allEdges = new vis.DataSet(edgesArray);
+        const container = document.getElementById("network");
+        const tooltip = document.getElementById("customTooltip");
+        const detailsPane = document.getElementById("detailsPane");
+        const detailsText = document.getElementById("detailsText");
+        const latestBox = document.getElementById("latestCourse");
 
-    // Initialize empty DataSets
-    const nodeDataSet = new vis.DataSet([]);
-    const edgeDataSet = new vis.DataSet([]);
+        // Initialize empty DataSets
+        const nodeDataSet = new vis.DataSet([]);
+        const edgeDataSet = new vis.DataSet([]);
 
-    const options = {
-        layout: {
+        const options = {
+          layout: {
             hierarchical: {
-                enabled: true,
-                direction: "LR",
-                sortMethod: "directed",
-                levelSeparation: 150,
-                nodeSpacing: 200,
+              enabled: true,
+              direction: "LR",
+              sortMethod: "directed",
+              levelSeparation: 150,
+              nodeSpacing: 200,
             },
-        },
-        nodes: { shape: "dot", size: 14, font: { size: 14, color: "#000" } },
-        edges: {
+          },
+          nodes: { shape: "dot", size: 14, font: { size: 14, color: "#000" } },
+          edges: {
             arrows: "to",
             smooth: {
-                type: "cubicBezier",
-                forceDirection: "horizontal",
-                roundness: 0.4,
+              type: "cubicBezier",
+              forceDirection: "horizontal",
+              roundness: 0.4,
             },
-        },
-        interaction: {
+          },
+          interaction: {
             hover: true,
             tooltipDelay: 100,
             navigationButtons: true,
             zoomView: false,
-        },
-        physics: false,
-    };
+          },
+          physics: false,
+        };
 
-    // Create network once
-    const network = new vis.Network(container, { nodes: nodeDataSet, edges: edgeDataSet }, options);
+        // Create network once
+        const network = new vis.Network(
+          container,
+          { nodes: nodeDataSet, edges: edgeDataSet },
+          options
+        );
 
-    // Attach node listeners once
-    network.on("selectNode", function (params) {
-        const nodeId = params.nodes[0];
-        const nodeData = nodeDataSet.get(nodeId);
-        if (!nodeData) return;
+        // Attach node listeners once
+        network.on("selectNode", function (params) {
+          const nodeId = params.nodes[0];
+          const nodeData = nodeDataSet.get(nodeId);
+          if (!nodeData) return;
 
-        const formattedTitle = nodeData.title
+          const formattedTitle = nodeData.title
             ? nodeData.title.replace(/\s{2,}/g, "\n")
-            : (nodeData.label || "");
+            : nodeData.label || "";
 
-        const lines = [
+          const lines = [
             `Code : ${nodeData.id}`,
-            formattedTitle ? `Details: ${formattedTitle}` : ""
-        ].filter(Boolean).join("\n");
+            formattedTitle ? `Details: ${formattedTitle}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n");
 
-        detailsText.textContent = lines;
+          detailsText.textContent = lines;
 
-        // fade-in using CSS class
-        detailsPane.classList.add("visible");
-    });
+          // fade-in using CSS class
+          detailsPane.classList.add("visible");
+        });
 
-    network.on("deselectNode", () => {
-        detailsPane.classList.remove("visible");
-    });
+        network.on("deselectNode", () => {
+          detailsPane.classList.remove("visible");
+        });
 
-    // ── Utility: get all connected nodes ──
-    function getConnectedNodesDeep(startId) {
-        const visited = new Set();
-        const queue = [startId];
-        const graph = {};
+        // ── Utility: get all connected nodes ──
+        function getConnectedNodesDeep(startId) {
+          const visited = new Set();
+          const queue = [startId];
+          const graph = {};
 
-        edgesArray.forEach(edge => {
+          edgesArray.forEach((edge) => {
             if (!graph[edge.from]) graph[edge.from] = [];
             if (!graph[edge.to]) graph[edge.to] = [];
             graph[edge.from].push(edge.to);
             graph[edge.to].push(edge.from);
-        });
+          });
 
-        while (queue.length > 0) {
+          while (queue.length > 0) {
             const current = queue.shift();
             if (!visited.has(current)) {
-                visited.add(current);
-                const neighbors = graph[current] || [];
-                neighbors.forEach(n => {
-                    if (!visited.has(n)) queue.push(n);
-                });
+              visited.add(current);
+              const neighbors = graph[current] || [];
+              neighbors.forEach((n) => {
+                if (!visited.has(n)) queue.push(n);
+              });
             }
+          }
+          return visited;
         }
-        return visited;
-    }
 
-    // ── Search button ──
-    document.getElementById("searchBtn").addEventListener("click", function (e) {
-        e.preventDefault();
-        const code = document.getElementById("searchBox").value.trim();
-        if (!code) return;
+        // ── Search button ──
+        document
+          .getElementById("searchBtn")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+            const code = document.getElementById("searchBox").value.trim();
+            if (!code) return;
 
-        const connectedIds = getConnectedNodesDeep(code);
+            const connectedIds = getConnectedNodesDeep(code);
 
-        // Filter nodes and PRESERVE titles/labels
-        const filteredNodes = allNodes.get().filter(n => connectedIds.has(n.id)).map(n => {
-            if (n.id === code) {
-                return {
+            // Filter nodes and PRESERVE titles/labels
+            const filteredNodes = allNodes
+              .get()
+              .filter((n) => connectedIds.has(n.id))
+              .map((n) => {
+                if (n.id === code) {
+                  return {
                     ...n,
                     color: {
-                        background: "#ffffff",
-                        border: "#ff0000",
-                        highlight: { background: "#ffffff", border: "#ff0000" },
-                        hover: { background: "#ffffff", border: "#ff0000" }
+                      background: "#ffffff",
+                      border: "#ff0000",
+                      highlight: { background: "#ffffff", border: "#ff0000" },
+                      hover: { background: "#ffffff", border: "#ff0000" },
                     },
                     borderWidth: 4,
-                    size: 20
-                };
+                    size: 20,
+                  };
+                }
+                return { ...n }; // keep all original props
+              });
+
+            // Filter edges
+            const filteredEdges = allEdges
+              .get()
+              .filter(
+                (e) => connectedIds.has(e.from) && connectedIds.has(e.to)
+              );
+
+            // Update existing DataSets (do NOT replace them)
+            nodeDataSet.clear();
+            edgeDataSet.clear();
+            nodeDataSet.add(filteredNodes);
+            edgeDataSet.add(filteredEdges);
+
+            // ── Latest course logic ──
+            const hasOutgoing = new Set(filteredEdges.map((e) => e.from));
+            const finals = filteredNodes.filter((n) => !hasOutgoing.has(n.id));
+
+            if (finals.length === 1) {
+              const node = finals[0];
+              const fullTitle = node.title || node.label || "";
+              const displayTitle = fullTitle.split("Type")[0].trim(); // grab everything before 'Type'
+              latestBox.textContent = `Latest course: ${displayTitle} (${node.id})`;
+              latestBox.style.display = "block";
+            } else {
+              latestBox.style.display = "none";
             }
-            return { ...n }; // keep all original props
-        });
+          });
 
-        // Filter edges
-        const filteredEdges = allEdges.get().filter(e => connectedIds.has(e.from) && connectedIds.has(e.to));
-
-        // Update existing DataSets (do NOT replace them)
-        nodeDataSet.clear();
-        edgeDataSet.clear();
-        nodeDataSet.add(filteredNodes);
-        edgeDataSet.add(filteredEdges);
-
-        // ── Latest course logic ──
-        const hasOutgoing = new Set(filteredEdges.map(e => e.from));
-        const finals = filteredNodes.filter(n => !hasOutgoing.has(n.id));
-
-        if (finals.length === 1) {
-            const node = finals[0];
-            const fullTitle = node.title || node.label || "";
-            const displayTitle = fullTitle.split("Type")[0].trim(); // grab everything before 'Type'
-            latestBox.textContent = `Latest course: ${displayTitle} (${node.id})`;
-            latestBox.style.display = "block";
-        } else {
+        // ── Reset button ──
+        document
+          .getElementById("resetBtn")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("searchBox").value = "";
+            nodeDataSet.clear();
+            edgeDataSet.clear();
             latestBox.style.display = "none";
-        }
-    });
+            detailsPane.classList.remove("visible");
+            tooltip.style.display = "none";
+          });
 
-    // ── Reset button ──
-    document.getElementById("resetBtn").addEventListener("click", function (e) {
-        e.preventDefault();
-        document.getElementById("searchBox").value = "";
-        nodeDataSet.clear();
-        edgeDataSet.clear();
-        latestBox.style.display = "none";
-        detailsPane.classList.remove("visible");
-        tooltip.style.display = "none";
-    });
+        // ── Export button ──
+        document
+          .getElementById("exportFullBtn")
+          .addEventListener("click", function () {
+            if (!network) {
+              alert("Please run a search first so the graph is loaded.");
+              return;
+            }
 
-});
-</script>
+            const originalHeight = container.style.height;
+            container.style.height = "2000px"; // Big canvas for export
+            network.redraw();
+            network.fit({ animation: false });
 
-
-
+            setTimeout(() => {
+              html2canvas(container, {
+                backgroundColor: "#ffffff",
+                scale: 3, // High res for readability
+              })
+                .then((canvas) => {
+                  const link = document.createElement("a");
+                  link.href = canvas.toDataURL("image/png");
+                  link.download = "full_network_graph.png";
+                  link.click();
+                  container.style.height = originalHeight; // Revert height
+                  network.redraw();
+                })
+                .catch((err) => {
+                  console.error("html2canvas error:", err);
+                  container.style.height = originalHeight;
+                  network.redraw();
+                });
+            }, 500);
+          });
+      });
+    </script>
   </body>
 </html>
