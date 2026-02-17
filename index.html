@@ -1,238 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Course superseding network</title>
     <link rel="icon" href="favicon_circular.ico" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="20260217 - Course_superseding_searchable.css"
+    />
     <script
       type="text/javascript"
       src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
     ></script>
-
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-      #network {
-        width: 100%;
-        height: 800px;
-        border: 1px solid lightgray;
-      }
-      #searchContainer {
-        margin-bottom: 10px;
-      }
-      #searchBox {
-        padding: 5px;
-        width: 200px;
-        font-size: 14px;
-      }
-      #searchContainer {
-        margin-bottom: 10px;
-      }
-
-      #info {
-        background-color: #f2f2f2;
-        padding: 12px 16px;
-        margin-bottom: 12px;
-        border-left: 4px solid #347c36;
-        border-radius: 6px;
-        font-size: 14px;
-        line-height: 1.4;
-      }
-      #info p {
-        margin: 6px 0;
-      }
-
-      #searchBox {
-        padding: 8px;
-        width: 220px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-      }
-
-      button {
-        padding: 8px 14px;
-        font-size: 14px;
-        font-weight: bold;
-        margin-left: 6px;
-        border: none;
-        border-radius: 6px;
-        background-color: #347c36;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-      }
-
-      button:hover {
-        background-color: #45a049;
-      }
-
-      #detailsPane {
-        margin-top: 0px;
-        padding: 10px 14px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        background: #fafafa;
-        font-size: 13px;
-        line-height: 1.4;
-        white-space: pre-wrap; /* allow wrapping inside <pre> */
-        display: none; /* start hidden */
-        opacity: 0; /* fully transparent */
-        transition: opacity 0.3s ease; /* smooth fade */
-      }
-
-      #detailsPane.visible {
-        display: block; /* show */
-        opacity: 1; /* fully visible */
-      }
-
-      #detailsPane button {
-        float: right;
-        margin-left: 8px;
-        background: #347c36;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 10px;
-        cursor: pointer;
-      }
-
-      #latestCourse {
-        display: none;
-        margin: 0 0 12px 0;
-        font-weight: bold;
-        font-size: 16px;
-        text-align: center; /* center text */
-      }
-
-      #detailsPane button:hover {
-        background: #45a049;
-      }
-
-      #mainWrapper {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 16px;
-      }
-
-      /* Network takes most of the width */
-      #network {
-        flex-grow: 1;
-        height: 800px;
-        border: 1px solid lightgray;
-      }
-
-      /* Right-side panel */
-      #detailsPane {
-        /*position: absolute;         position it relative to the page */
-        top: 50px; /* adjust as needed */
-        right: 20px; /* adjust as needed */
-        width: 280px;
-        padding: 14px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        background: #fafafa;
-        font-size: 13px;
-        line-height: 1.4;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-        z-index: 9999; /* ensure it sits above the network canvas */
-      }
-
-      #detailsText {
-        white-space: pre-wrap; /* allow line breaks + wrapping */
-        word-wrap: break-word; /* break long strings */
-        overflow-wrap: break-word;
-        overflow-x: hidden; /* hides horizontal scrollbar */
-        max-width: 100%; /* respects parent panel width */
-        box-sizing: border-box; /* ensures padding/margin behave */
-        white-space: pre-line; /* respects \n and wraps long lines */
-      }
-
-      #detailsPane button {
-        float: right;
-        margin-left: 8px;
-        background: #347c36;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 10px;
-        cursor: pointer;
-      }
-
-      /* Highlight details pane briefly on right-click */
-      #detailsPane.right-click-active {
-        background-color: #e0ffe0; /* light green flash */
-        transition: background-color 0.3s ease;
-      }
-
-      #detailsPane button:hover {
-        background: #45a049;
-      }
-
-      #detailsPane h3 {
-        margin: 0 0 0px 0; /* top right bottom left */
-        font-size: 16px; /* optional: tweak font size */
-      }
-    </style>
   </head>
+
   <body>
-    <h2>Program superseding visualiser - as at 2 Feb 2026</h2>
+    <div class="app">
+      <header class="app-header">
+        <div class="title-block">
+          <div class="title-row">
+            <div class="logo-badge">⇄</div>
+            <h1>Course Superseding Explorer</h1>
+          </div>
+          <div class="subtitle">Maintained by PSB - Training System Insights · VET</div>
+        </div>
 
-    <div id="info">
-      <p><strong>🟢 Green arrows</strong> represent equivalent courses.</p>
-      <p><strong>🔴 Red arrows</strong> represent non-equivalent courses.</p>
-      <p>
-        Use the search box below to enter a course code and view its
-        connections.
-      </p>
+        <div class="header-meta">
+          <span class="version-pill">Data snapshot · 2 Feb 2026</span>
+        </div>
+      </header>
+      <section class="toolbar card">
+        <div class="search-row">
+          <div class="search-wrap">
+            <input
+              type="text"
+              id="searchBox"
+              placeholder="Enter name or code..."
+            />
+            <div
+              id="searchResults"
+              class="search-results"
+              style="display: none"
+            ></div>
+          </div>
+
+          <div class="btn-row">
+            <button id="searchBtn">Search</button>
+            <button id="resetBtn" class="btn-secondary">Reset</button>
+            <button id="downloadCsvBtn" class="btn-secondary">
+              Download CSV
+            </button>
+            <button id="exportFullBtn" class="btn-secondary">
+              Export Image
+            </button>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <div id="latestCourse" class="latest" style="display: none"></div>
+          <div id="stats" class="stats" style="display: none"></div>
+          <div id="message" class="message"></div>
+        </div>
+      </section>
+
+      <section id="mainWrapper" class="main">
+        <div id="network" class="card canvas-frame"></div>
+
+        <aside id="detailsPane" class="card details">
+          <div class="details-header">
+            <h3>Selected node</h3>
+            <button id="copyBtn" class="icon-btn" title="Copy details">
+              Copy
+            </button>
+          </div>
+          <pre id="detailsText"></pre>
+        </aside>
+      </section>
     </div>
-
-    <div id="searchContainer">
-      <input type="text" id="searchBox" placeholder="Enter course code..." />
-      <button id="searchBtn">Search</button>
-      <button id="resetBtn">Reset</button>
-      <button id="exportFullBtn">Export Full Graph</button>
-    </div>
-
-    <div
-      id="latestCourse"
-      style="
-        display: none;
-        margin: 0 0 12px 0;
-        font-weight: bold;
-        font-size: 16px;
-      "
-    ></div>
-
-    <div
-      id="message"
-      style="color: red; margin-top: 8px; text-align: center; font-weight: bold"
-    ></div>
-
-    <div id="mainWrapper">
-      <div id="network"></div>
-      <div id="detailsPane">
-        <h3>Selected node details:</h3>
-        <pre id="detailsText"></pre>
-      </div>
-    </div>
-
-    <div
-      id="customTooltip"
-      style="
-        position: absolute;
-        display: none;
-        background: #fff;
-        border: 1px solid #ccc;
-        padding: 6px;
-        z-index: 10;
-        pointer-events: none;
-      "
-    ></div>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="nodesArray.js"></script>
@@ -251,6 +94,9 @@
         // Initialize empty DataSets
         const nodeDataSet = new vis.DataSet([]);
         const edgeDataSet = new vis.DataSet([]);
+
+        let lastFilteredNodes = [];
+        let lastSearchCode = "";
 
         const options = {
           layout: {
@@ -284,7 +130,7 @@
         const network = new vis.Network(
           container,
           { nodes: nodeDataSet, edges: edgeDataSet },
-          options
+          options,
         );
 
         // Attach node listeners once
@@ -310,9 +156,371 @@
           detailsPane.classList.add("visible");
         });
 
+        document
+          .getElementById("downloadCsvBtn")
+          .addEventListener("click", () => {
+            if (!lastFilteredNodes || lastFilteredNodes.length === 0) {
+              alert(
+                "Run a search first, then you can download the connected courses as a CSV.",
+              );
+              return;
+            }
+
+            // Build table rows
+            const rows = [];
+            rows.push([
+              "CourseCode",
+              "CourseName",
+              "Type",
+              "StartDate",
+              "EndDate",
+            ]);
+
+            const dataRows = lastFilteredNodes.map((n) => {
+              const name = extractCourseNameFromTitle(n.title) || n.label || "";
+              const startD = parseDateOrNull(n.startDate);
+              const endD = parseDateOrNull(n.endDate);
+
+              return {
+                code: n.id,
+                name,
+                type: n.componentType || "",
+                startD,
+                endD,
+              };
+            });
+
+            // Sort by start date (nulls last), then by course code
+            dataRows.sort((a, b) => {
+              const at = a.startD
+                ? a.startD.getTime()
+                : Number.POSITIVE_INFINITY;
+              const bt = b.startD
+                ? b.startD.getTime()
+                : Number.POSITIVE_INFINITY;
+              if (at !== bt) return at - bt;
+              return String(a.code).localeCompare(String(b.code));
+            });
+
+            dataRows.forEach((r) => {
+              rows.push([
+                r.code,
+                r.name,
+                r.type,
+                fmtDate(r.startD),
+                fmtDate(r.endD),
+              ]);
+            });
+
+            const fname = `superseding_${lastSearchCode || "search"}_courses.csv`;
+            downloadCsv(fname, rows);
+          });
+
         network.on("deselectNode", () => {
           detailsPane.classList.remove("visible");
         });
+
+        // Parse first line of title as the friendly course name
+        function extractCourseNameFromTitle(title) {
+          if (!title) return "";
+          return title.split("\n")[0].trim();
+        }
+
+        // Safer date parsing (handles "None" / "" / weird)
+        function parseDateOrNull(s) {
+          if (!s) return null;
+          const t = String(s).trim();
+          if (!t || t.toLowerCase() === "none") return null;
+
+          // dd/mm/yyyy
+          let m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+          if (m) {
+            const dd = parseInt(m[1], 10);
+            const mm = parseInt(m[2], 10) - 1;
+            const yyyy = parseInt(m[3], 10);
+            return new Date(yyyy, mm, dd);
+          }
+
+          // dd-mm-yyyy  ✅ your nodesArray.js format
+          m = t.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+          if (m) {
+            const dd = parseInt(m[1], 10);
+            const mm = parseInt(m[2], 10) - 1;
+            const yyyy = parseInt(m[3], 10);
+            return new Date(yyyy, mm, dd);
+          }
+
+          // yyyy-mm-dd (ISO)
+          m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+          if (m) {
+            const yyyy = parseInt(m[1], 10);
+            const mm = parseInt(m[2], 10) - 1;
+            const dd = parseInt(m[3], 10);
+            return new Date(yyyy, mm, dd);
+          }
+
+          // last resort
+          const d = new Date(t);
+          return isNaN(d.getTime()) ? null : d;
+        }
+
+        function fmtDate(d) {
+          if (!d) return "";
+          // ISO date only (nice for Excel sorting)
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function csvEscape(val) {
+          const s = (val ?? "").toString();
+          // quote if contains comma, quote, or newline
+          if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+          return s;
+        }
+
+        function downloadCsv(filename, rows) {
+          const csv = rows.map((r) => r.map(csvEscape).join(",")).join("\n");
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          URL.revokeObjectURL(url);
+        }
+
+        function runGraphSearch(code) {
+          code = (code || "").trim();
+          if (!code) return;
+
+          const connectedIds = getConnectedNodesDeep(code);
+
+          const filteredNodes = allNodes
+            .get()
+            .filter((n) => connectedIds.has(n.id))
+            .map((n) => {
+              if (n.id === code) {
+                return {
+                  ...n,
+                  color: {
+                    background: "#ffffff",
+                    border: "#ff0000",
+                    highlight: { background: "#ffffff", border: "#ff0000" },
+                    hover: { background: "#ffffff", border: "#ff0000" },
+                  },
+                  borderWidth: 4,
+                  size: 20,
+                };
+              }
+              return n;
+            });
+
+          const filteredEdges = allEdges
+            .get()
+            .filter((e) => connectedIds.has(e.from) && connectedIds.has(e.to));
+
+          lastFilteredNodes = filteredNodes;
+          lastSearchCode = code;
+
+          // ✅ THIS is the missing bit: update the datasets the network was built with
+          nodeDataSet.clear();
+          edgeDataSet.clear();
+          nodeDataSet.add(filteredNodes);
+          edgeDataSet.add(filteredEdges);
+
+          // Optional: nice view after search
+          network.fit({ animation: false });
+
+          // Hide details pane until something is clicked
+          detailsPane.classList.remove("visible");
+
+          // ✅ Latest course logic
+          const hasOutgoing = new Set(filteredEdges.map((e) => e.from));
+          const finals = filteredNodes.filter((n) => !hasOutgoing.has(n.id));
+
+          if (finals.length === 1) {
+            const node = finals[0];
+            latestBox.textContent = `Latest course: ${node.title || node.label}`;
+            latestBox.style.display = "block";
+          } else {
+            latestBox.style.display = "none";
+          }
+
+          // Show stats
+          const nodeCount = filteredNodes.length;
+          const edgeCount = filteredEdges.length;
+          statsEl.textContent = `Nodes: ${nodeCount} · Links: ${edgeCount}`;
+          statsEl.style.display = "block";
+        }
+
+        // --- Helpers to build friendly search text from nodesArray.js ---
+        function extractCourseName(node) {
+          // title format in nodesArray.js: "Name\nType: ...\nStart: ...\nEnd: ..."
+          // so first line is the name
+          const t = (node.title || "").split("\n")[0].trim();
+          return t || node.label || node.id;
+        }
+
+        function normalize(s) {
+          return (s || "").toString().toLowerCase().trim().replace(/\s+/g, " ");
+        }
+
+        // Precompute a lightweight search index
+        const nodeIndex = nodesArray.map((n) => {
+          const name = extractCourseName(n);
+          return {
+            id: n.id,
+            name,
+            type: n.componentType || "", // in your file as componentType :contentReference[oaicite:1]{index=1}
+            start: n.startDate || "",
+            end: n.endDate || "",
+            haystack: normalize(`${n.id} ${name} ${n.componentType || ""}`),
+          };
+        });
+
+        const searchBox = document.getElementById("searchBox");
+        const resultsEl = document.getElementById("searchResults");
+        let activeIdx = -1;
+        let currentResults = [];
+
+        function hideResults() {
+          resultsEl.style.display = "none";
+          resultsEl.innerHTML = "";
+          activeIdx = -1;
+          currentResults = [];
+        }
+
+        function renderResults(items) {
+          if (!items.length) {
+            hideResults();
+            return;
+          }
+
+          resultsEl.innerHTML = items
+            .map((x, i) => {
+              const endTxt = x.end && x.end !== "None" ? x.end : "current";
+              return `
+      <div class="search-item" data-id="${x.id}" data-idx="${i}">
+        <strong>${x.id}</strong> ${x.name}
+        <span class="sub">${x.type} · ${x.start || "?"} → ${endTxt}</span>
+      </div>
+    `;
+            })
+            .join("");
+
+          resultsEl.style.display = "block";
+
+          // click to select
+          Array.from(resultsEl.querySelectorAll(".search-item")).forEach(
+            (el) => {
+              el.addEventListener("click", () => {
+                const id = el.getAttribute("data-id");
+                searchBox.value = id;
+                hideResults();
+                runGraphSearch(id);
+              });
+              el.addEventListener("mouseenter", () => {
+                activeIdx = parseInt(el.getAttribute("data-idx"), 10);
+                updateActive();
+              });
+            },
+          );
+
+          activeIdx = 0;
+          updateActive();
+        }
+
+        function updateActive() {
+          const els = Array.from(resultsEl.querySelectorAll(".search-item"));
+          els.forEach((e) => e.classList.remove("active"));
+          if (activeIdx >= 0 && activeIdx < els.length) {
+            els[activeIdx].classList.add("active");
+            els[activeIdx].scrollIntoView({ block: "nearest" });
+          }
+        }
+
+        function doTypeaheadSearch(q) {
+          const query = normalize(q);
+          if (!query || query.length < 2) {
+            // threshold stops noisy results
+            hideResults();
+            return;
+          }
+
+          const maxResults = 12;
+
+          // simple scoring: starts-with code > contains code > contains name text
+          const scored = nodeIndex
+            .filter((x) => x.haystack.includes(query))
+            .map((x) => {
+              let score = 0;
+              const idN = normalize(x.id);
+              const nameN = normalize(x.name);
+
+              if (idN.startsWith(query)) score += 100;
+              if (idN.includes(query)) score += 30;
+              if (nameN.includes(query)) score += 10;
+
+              // small bonus for exact word match in name
+              if (nameN.split(" ").includes(query)) score += 5;
+
+              return { ...x, score };
+            })
+            .sort((a, b) => b.score - a.score)
+            .slice(0, maxResults);
+
+          currentResults = scored;
+          renderResults(scored);
+        }
+
+        // input typing
+        searchBox.addEventListener("input", (e) => {
+          doTypeaheadSearch(e.target.value);
+        });
+
+        // keyboard navigation in dropdown
+        searchBox.addEventListener("keydown", (e) => {
+          if (resultsEl.style.display !== "block") return;
+
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            activeIdx = Math.min(activeIdx + 1, currentResults.length - 1);
+            updateActive();
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            activeIdx = Math.max(activeIdx - 1, 0);
+            updateActive();
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (activeIdx >= 0 && activeIdx < currentResults.length) {
+              const id = currentResults[activeIdx].id;
+              searchBox.value = id;
+              hideResults();
+              runGraphSearch(id);
+            }
+          } else if (e.key === "Escape") {
+            hideResults();
+          }
+        });
+
+        // click outside closes dropdown
+        document.addEventListener("click", (e) => {
+          if (!resultsEl.contains(e.target) && e.target !== searchBox) {
+            hideResults();
+          }
+        });
+
+        document
+          .getElementById("searchBtn")
+          .addEventListener("click", function () {
+            runGraphSearch(document.getElementById("searchBox").value);
+          });
 
         // ── Utility: get all connected nodes ──
         function getConnectedNodesDeep(startId) {
@@ -340,76 +548,7 @@
           return visited;
         }
 
-        // ── Search button ──
-        document
-          .getElementById("searchBtn")
-          .addEventListener("click", function (e) {
-            e.preventDefault();
-            const code = document.getElementById("searchBox").value.trim();
-            if (!code) return;
-
-            const connectedIds = getConnectedNodesDeep(code);
-
-            // Filter nodes and PRESERVE titles/labels
-            const filteredNodes = allNodes
-              .get()
-              .filter((n) => connectedIds.has(n.id))
-              .map((n) => {
-                if (n.id === code) {
-                  return {
-                    ...n,
-                    color: {
-                      background: "#ffffff",
-                      border: "#ff0000",
-                      highlight: { background: "#ffffff", border: "#ff0000" },
-                      hover: { background: "#ffffff", border: "#ff0000" },
-                    },
-                    borderWidth: 4,
-                    size: 20,
-                  };
-                }
-                return { ...n }; // keep all original props
-              });
-
-            // Filter edges
-            const filteredEdges = allEdges
-              .get()
-              .filter(
-                (e) => connectedIds.has(e.from) && connectedIds.has(e.to)
-              );
-
-            // If no nodes, show message and stop
-            if (filteredNodes.length === 0) {
-              document.getElementById("message").textContent =
-                "No course found, please check entered code.";
-              document.getElementById("network").style.display = "none"; // hide graph
-              return; // don’t update graph
-            } else {
-              // clear old message if search is valid
-              document.getElementById("message").textContent = "";
-              document.getElementById("network").style.display = "block"; // show graph
-            }
-
-            // Update existing DataSets (do NOT replace them)
-            nodeDataSet.clear();
-            edgeDataSet.clear();
-            nodeDataSet.add(filteredNodes);
-            edgeDataSet.add(filteredEdges);
-
-            // ── Latest course logic ──
-            const hasOutgoing = new Set(filteredEdges.map((e) => e.from));
-            const finals = filteredNodes.filter((n) => !hasOutgoing.has(n.id));
-
-            if (finals.length === 1) {
-              const node = finals[0];
-              const fullTitle = node.title || node.label || "";
-              const displayTitle = fullTitle.split("Type")[0].trim();
-              latestBox.textContent = `Latest course: ${displayTitle} (${node.id})`;
-              latestBox.style.display = "block";
-            } else {
-              latestBox.style.display = "none";
-            }
-          });
+        // ── Search button ── old listener removed
 
         // ── Reset button ──
         document
