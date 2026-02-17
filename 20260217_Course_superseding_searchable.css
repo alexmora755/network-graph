@@ -269,7 +269,7 @@ button:active{ transform: translateY(1px); }
     position: relative;
     top: auto;
   }
-
+}
 .app-header{
   display:flex;
   justify-content:space-between;
@@ -322,6 +322,7 @@ button:active{ transform: translateY(1px); }
 }
 
 
-}
+
+
 
 
