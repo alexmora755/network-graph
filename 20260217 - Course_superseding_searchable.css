@@ -295,7 +295,10 @@ button:active{ transform: translateY(1px); }
   font-size:20px;
   font-weight:800;
   box-shadow:0 6px 14px rgba(0,0,0,0.15);
+  flex-shrink:0;
+  line-height:1;
 }
+
 
 .title-block h1{
   margin:0;
@@ -320,3 +323,4 @@ button:active{ transform: translateY(1px); }
 
 
 }
+
