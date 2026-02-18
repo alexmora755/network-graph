@@ -321,6 +321,23 @@ button:active{ transform: translateY(1px); }
   font-weight:600;
 }
 
+.legend-row{
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+.badge.green{
+  border-left: 6px solid #2e7d32;
+  background: rgba(46,125,50,0.08);
+}
+
+.badge.red{
+  border-left: 6px solid #c62828;
+  background: rgba(198,40,40,0.08);
+}
+
+
+
 
 
 
