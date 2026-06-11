@@ -139,6 +139,18 @@
           options,
         );
 
+
+        // Copy selected node details to clipboard
+        document.getElementById("copyBtn").addEventListener("click", () => {
+        navigator.clipboard.writeText(detailsText.textContent)
+            .then(() => {
+            console.log("Copied to clipboard");
+            })
+            .catch((err) => {
+            console.error("Copy failed:", err);
+            });
+        });
+
         // Attach node listeners once
         network.on("selectNode", function (params) {
           const nodeId = params.nodes[0];
